@@ -5,17 +5,27 @@
 #include "gl_util.h"
 #include "Game.h"
 
+Camera camera;
+bool staticCamera = true;
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    if (yoffset > 0 && !staticCamera) {
+        camera.fov = std::max(camera.fov - 1.0f, 30.0f);
+    } else if (yoffset < 0 && !staticCamera) {
+        camera.fov = std::min(camera.fov + 1.0f, 90.0f);
+    }
+}
+
 int main() {
     Game game(800, 600);
     game.init();
 
-    Camera camera;
     camera.position = glm::vec3(3.0f, -2.0f, 3.0f);
     camera.rotation = glm::quat(glm::vec3(glm::radians(30.0f), glm::radians(45.0f), 0.0f));
     camera.width = game.viewportWidth;
     camera.height = game.viewportHeight;
 
-    glm::vec3 lightPos(1.0f,50.0f, 50.0f);
+    glm::vec3 lightPos(30.0f,25.0f, 60.0f);
 
     GLuint prog = create_program(color_vertex_glsl, color_fragment_glsl);
 
@@ -151,6 +161,8 @@ int main() {
     };
     GLuint cubemapTexture = loadCubemap(faces);
 
+    glfwSetScrollCallback(game.window, scroll_callback);
+
     while(!glfwWindowShouldClose(game.window)) {
 
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -197,11 +209,64 @@ int main() {
 
         glfwSwapBuffers(game.window);
         glfwPollEvents();
+
+        if (glfwGetKey(game.window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+            game.close();
+        }
+        if (glfwGetKey(game.window, GLFW_KEY_W) == GLFW_PRESS && !staticCamera) {
+            camera.position.z -= 0.05f;
+        }
+        if (glfwGetKey(game.window, GLFW_KEY_S) == GLFW_PRESS && !staticCamera) {
+            camera.position.z += 0.05f;
+        }
+        if (glfwGetKey(game.window, GLFW_KEY_A) == GLFW_PRESS && !staticCamera) {
+            camera.position.x -= 0.05f;
+        }
+        if (glfwGetKey(game.window, GLFW_KEY_D) == GLFW_PRESS && !staticCamera) {
+            camera.position.x += 0.05f;
+        }
+        if (!staticCamera) {
+            if (camera.position.x < -5) camera.position.x = -5;
+            if (camera.position.x > 5) camera.position.x = 5;
+            if (camera.position.z < -5) camera.position.z = -5;
+            if (camera.position.z > 5) camera.position.z = 5;
+        }
+        if (glfwGetKey(game.window, GLFW_KEY_KP_1) == GLFW_PRESS) {
+            staticCamera = true;
+            camera.position = glm::vec3(3.0f, -2.0f, 3.0f);
+            camera.rotation = glm::quat(glm::vec3(glm::radians(30.0f), glm::radians(45.0f), 0.0f));
+            camera.fov = 60;
+        }
+        if (glfwGetKey(game.window, GLFW_KEY_KP_2) == GLFW_PRESS) {
+            staticCamera = true;
+            camera.position = glm::vec3(3.0f, 2.0f, 3.0f);
+            camera.rotation = glm::quat(glm::vec3(glm::radians(-30.0f), glm::radians(45.0f), 0.0f));
+            camera.fov = 60;
+        }
+        if (glfwGetKey(game.window, GLFW_KEY_KP_3) == GLFW_PRESS) {
+            staticCamera = true;
+            camera.position = glm::vec3(-3.0f, 2.0f, -3.0f);
+            camera.rotation = glm::quat(glm::vec3(glm::radians(-30.0f), glm::radians(-135.0f), 0.0f));
+            camera.fov = 60;
+        }
+        if (glfwGetKey(game.window, GLFW_KEY_KP_4) == GLFW_PRESS) {
+            staticCamera = true;
+            camera.position = glm::vec3(-3.0f, -2.0f, -3.0f);
+            camera.rotation = glm::quat(glm::vec3(glm::radians(30.0f), glm::radians(-135.0f), 0.0f));
+            camera.fov = 60;
+        }
+        if (glfwGetKey(game.window, GLFW_KEY_KP_5) == GLFW_PRESS) {
+            staticCamera = false;
+            camera.position = glm::vec3(0.0f, 10.0f, 0.0f);
+            camera.rotation = glm::quat(glm::vec3(glm::radians(-90.0f), glm::radians(0.0f), 0.0f));
+            camera.fov = 60;
+        }
     }
 
     glDeleteBuffers(1,&VBO);
     glDeleteVertexArrays(1,&VAO);
     glDeleteProgram(prog);
+
     game.onClose();
     return 0;
 }

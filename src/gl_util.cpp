@@ -1,7 +1,7 @@
 #include <iostream>
 #include "gl_util.h"
 #define STB_IMAGE_IMPLEMENTATION
-#include "external/stb/stb_image.h"
+#include "../external/stb/stb_image.h"
 
 void glfw_error(int code, const char* desc) {
     std::cerr<<"GLFW error"<<code<<": "<<desc<<"\n";

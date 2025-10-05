@@ -13,7 +13,7 @@ void main()
     vec3 lightColor = vec3(1,1,1); /* need to add into in or uniform */
 
     //ambient
-    float ambientStrength = 0.1;
+    float ambientStrength = 0.2;
     vec3 ambient = ambientStrength * lightColor;
 
 

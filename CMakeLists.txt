@@ -11,17 +11,17 @@ add_subdirectory(external/glfw)
 add_subdirectory(external/glm)
 
 add_executable(openglFinal
-        main.cpp
+        src/main.cpp
         external/stb/stb_image.h
-        Camera.cpp
-        pch.cpp
-        gl_util.cpp
-        gl_util.h
-        Game.cpp
-        Game.h
+        src/Camera.cpp
+        src/pch.cpp
+        src/gl_util.cpp
+        src/gl_util.h
+        src/Game.cpp
+        src/Game.h
 )
 
-target_precompile_headers(openglFinal PRIVATE pch.h)
+target_precompile_headers(openglFinal PRIVATE src/pch.h)
 
 target_link_libraries(openglFinal PRIVATE
         glfw
