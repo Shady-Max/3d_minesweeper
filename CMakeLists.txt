@@ -14,8 +14,14 @@ add_executable(openglFinal
         main.cpp
         external/stb/stb_image.h
         Camera.cpp
-        Camera.h
+        pch.cpp
+        gl_util.cpp
+        gl_util.h
+        Game.cpp
+        Game.h
 )
+
+target_precompile_headers(openglFinal PRIVATE pch.h)
 
 target_link_libraries(openglFinal PRIVATE
         glfw

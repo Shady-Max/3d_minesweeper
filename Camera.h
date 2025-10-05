@@ -1,14 +1,5 @@
-//
-// Created by Max on 05.10.2025.
-//
-
 #ifndef OPENGLFINAL_CAMERA_H
 #define OPENGLFINAL_CAMERA_H
-
-
-#include "glm/glm.hpp"
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 class Camera {
 public:

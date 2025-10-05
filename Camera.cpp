@@ -1,7 +1,3 @@
-//
-// Created by Max on 05.10.2025.
-//
-
 #include "Camera.h"
 
 glm::mat4 Camera::getViewMatrix() {
