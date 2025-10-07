@@ -4,6 +4,10 @@
 #include "Camera.h"
 #include "gl_util.h"
 #include "Game.h"
+#include <chrono>
+#include <thread>
+
+const double targetFrameTime = 1.0 / 60.0;
 
 Camera camera;
 bool staticCamera = true;
@@ -165,6 +169,8 @@ int main() {
 
     while(!glfwWindowShouldClose(game.window)) {
 
+        auto frameStart = std::chrono::high_resolution_clock::now();
+
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -260,6 +266,14 @@ int main() {
             camera.position = glm::vec3(0.0f, 10.0f, 0.0f);
             camera.rotation = glm::quat(glm::vec3(glm::radians(-90.0f), glm::radians(0.0f), 0.0f));
             camera.fov = 60;
+        }
+
+        auto frameEnd = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed = frameEnd - frameStart;
+
+        double sleepTime = targetFrameTime - elapsed.count();
+        if (sleepTime > 0) {
+            std::this_thread::sleep_for(std::chrono::duration<double>(sleepTime));
         }
     }
 
