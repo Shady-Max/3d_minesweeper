@@ -1,7 +1,3 @@
-//
-// Created by Max on 05.10.2025.
-//
-
 #include <iostream>
 #include "Game.h"
 #include "gl_util.h"
