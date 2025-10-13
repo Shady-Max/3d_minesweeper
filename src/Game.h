@@ -1,7 +1,3 @@
-//
-// Created by Max on 05.10.2025.
-//
-
 #ifndef OPENGLFINAL_GAME_H
 #define OPENGLFINAL_GAME_H
 
