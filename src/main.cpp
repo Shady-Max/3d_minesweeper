@@ -7,8 +7,6 @@
 #include <chrono>
 #include <thread>
 
-const double targetFrameTime = 1.0 / 60.0;
-
 Camera camera;
 bool staticCamera = true;
 
@@ -167,9 +165,70 @@ int main() {
 
     glfwSetScrollCallback(game.window, scroll_callback);
 
+    double deltaTime = 0.0;
+    auto lastFrame = std::chrono::high_resolution_clock::now();
+
     while(!glfwWindowShouldClose(game.window)) {
 
-        auto frameStart = std::chrono::high_resolution_clock::now();
+        auto currentFrame = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed = currentFrame - lastFrame;
+        deltaTime = elapsed.count();
+        lastFrame = currentFrame;
+
+        glfwPollEvents();
+
+        if (glfwGetKey(game.window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+            game.close();
+        }
+        if (glfwGetKey(game.window, GLFW_KEY_W) == GLFW_PRESS && !staticCamera) {
+            camera.position.z -= 2 * deltaTime;
+        }
+        if (glfwGetKey(game.window, GLFW_KEY_S) == GLFW_PRESS && !staticCamera) {
+            camera.position.z += 2 * deltaTime;
+        }
+        if (glfwGetKey(game.window, GLFW_KEY_A) == GLFW_PRESS && !staticCamera) {
+            camera.position.x -= 2 * deltaTime;
+        }
+        if (glfwGetKey(game.window, GLFW_KEY_D) == GLFW_PRESS && !staticCamera) {
+            camera.position.x += 2 * deltaTime;
+        }
+        if (!staticCamera) {
+            if (camera.position.x < -5) camera.position.x = -5;
+            if (camera.position.x > 5) camera.position.x = 5;
+            if (camera.position.z < -5) camera.position.z = -5;
+            if (camera.position.z > 5) camera.position.z = 5;
+        }
+        if (glfwGetKey(game.window, GLFW_KEY_KP_1) == GLFW_PRESS) {
+            staticCamera = true;
+            camera.position = glm::vec3(3.0f, -2.0f, 3.0f);
+            camera.rotation = glm::quat(glm::vec3(glm::radians(30.0f), glm::radians(45.0f), 0.0f));
+            camera.fov = 60;
+        }
+        if (glfwGetKey(game.window, GLFW_KEY_KP_2) == GLFW_PRESS) {
+            staticCamera = true;
+            camera.position = glm::vec3(3.0f, 2.0f, 3.0f);
+            camera.rotation = glm::quat(glm::vec3(glm::radians(-30.0f), glm::radians(45.0f), 0.0f));
+            camera.fov = 60;
+        }
+        if (glfwGetKey(game.window, GLFW_KEY_KP_3) == GLFW_PRESS) {
+            staticCamera = true;
+            camera.position = glm::vec3(-3.0f, 2.0f, -3.0f);
+            camera.rotation = glm::quat(glm::vec3(glm::radians(-30.0f), glm::radians(-135.0f), 0.0f));
+            camera.fov = 60;
+        }
+        if (glfwGetKey(game.window, GLFW_KEY_KP_4) == GLFW_PRESS) {
+            staticCamera = true;
+            camera.position = glm::vec3(-3.0f, -2.0f, -3.0f);
+            camera.rotation = glm::quat(glm::vec3(glm::radians(30.0f), glm::radians(-135.0f), 0.0f));
+            camera.fov = 60;
+        }
+        if (glfwGetKey(game.window, GLFW_KEY_KP_5) == GLFW_PRESS) {
+            staticCamera = false;
+            camera.position = glm::vec3(0.0f, 10.0f, 0.0f);
+            camera.rotation = glm::quat(glm::vec3(glm::radians(-90.0f), glm::radians(0.0f), 0.0f));
+            camera.fov = 60;
+        }
+
 
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -214,67 +273,7 @@ int main() {
         glDepthFunc(GL_LESS);
 
         glfwSwapBuffers(game.window);
-        glfwPollEvents();
 
-        if (glfwGetKey(game.window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-            game.close();
-        }
-        if (glfwGetKey(game.window, GLFW_KEY_W) == GLFW_PRESS && !staticCamera) {
-            camera.position.z -= 0.05f;
-        }
-        if (glfwGetKey(game.window, GLFW_KEY_S) == GLFW_PRESS && !staticCamera) {
-            camera.position.z += 0.05f;
-        }
-        if (glfwGetKey(game.window, GLFW_KEY_A) == GLFW_PRESS && !staticCamera) {
-            camera.position.x -= 0.05f;
-        }
-        if (glfwGetKey(game.window, GLFW_KEY_D) == GLFW_PRESS && !staticCamera) {
-            camera.position.x += 0.05f;
-        }
-        if (!staticCamera) {
-            if (camera.position.x < -5) camera.position.x = -5;
-            if (camera.position.x > 5) camera.position.x = 5;
-            if (camera.position.z < -5) camera.position.z = -5;
-            if (camera.position.z > 5) camera.position.z = 5;
-        }
-        if (glfwGetKey(game.window, GLFW_KEY_KP_1) == GLFW_PRESS) {
-            staticCamera = true;
-            camera.position = glm::vec3(3.0f, -2.0f, 3.0f);
-            camera.rotation = glm::quat(glm::vec3(glm::radians(30.0f), glm::radians(45.0f), 0.0f));
-            camera.fov = 60;
-        }
-        if (glfwGetKey(game.window, GLFW_KEY_KP_2) == GLFW_PRESS) {
-            staticCamera = true;
-            camera.position = glm::vec3(3.0f, 2.0f, 3.0f);
-            camera.rotation = glm::quat(glm::vec3(glm::radians(-30.0f), glm::radians(45.0f), 0.0f));
-            camera.fov = 60;
-        }
-        if (glfwGetKey(game.window, GLFW_KEY_KP_3) == GLFW_PRESS) {
-            staticCamera = true;
-            camera.position = glm::vec3(-3.0f, 2.0f, -3.0f);
-            camera.rotation = glm::quat(glm::vec3(glm::radians(-30.0f), glm::radians(-135.0f), 0.0f));
-            camera.fov = 60;
-        }
-        if (glfwGetKey(game.window, GLFW_KEY_KP_4) == GLFW_PRESS) {
-            staticCamera = true;
-            camera.position = glm::vec3(-3.0f, -2.0f, -3.0f);
-            camera.rotation = glm::quat(glm::vec3(glm::radians(30.0f), glm::radians(-135.0f), 0.0f));
-            camera.fov = 60;
-        }
-        if (glfwGetKey(game.window, GLFW_KEY_KP_5) == GLFW_PRESS) {
-            staticCamera = false;
-            camera.position = glm::vec3(0.0f, 10.0f, 0.0f);
-            camera.rotation = glm::quat(glm::vec3(glm::radians(-90.0f), glm::radians(0.0f), 0.0f));
-            camera.fov = 60;
-        }
-
-        auto frameEnd = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> elapsed = frameEnd - frameStart;
-
-        double sleepTime = targetFrameTime - elapsed.count();
-        if (sleepTime > 0) {
-            std::this_thread::sleep_for(std::chrono::duration<double>(sleepTime));
-        }
     }
 
     glDeleteBuffers(1,&VBO);
