@@ -19,6 +19,10 @@ add_executable(openglFinal
         src/gl_util.h
         src/Game.cpp
         src/Game.h
+        src/Scene.cpp
+        src/Scene.h
+        src/GameScene.cpp
+        src/GameScene.h
 )
 
 target_precompile_headers(openglFinal PRIVATE src/pch.h)
