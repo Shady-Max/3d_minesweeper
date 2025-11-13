@@ -6,10 +6,18 @@
 #include "Game.h"
 #include <chrono>
 #include <thread>
+#include <string>
 
 int main() {
     Game game(800, 600);
     game.init();
+    std::cout << "Controls:\n"
+              << "WASD - Move camera\n"
+              << "Mouse Scroll - Zoom in/out\n"
+              << "R - Restart game\n"
+              << "Numpad 1 - Easy mode\n"
+              << "Numpad 2 - Medium mode\n"
+              << "Numpad 3 - Hard mode\n";
     game.update();
     game.onClose();
     return 0;

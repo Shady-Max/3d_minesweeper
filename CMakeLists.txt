@@ -54,3 +54,4 @@ add_dependencies(openglFinal generate_shaders)
 target_include_directories(openglFinal PRIVATE ${CMAKE_BINARY_DIR}/generated)
 
 file(COPY ${CMAKE_SOURCE_DIR}/skybox DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY ${CMAKE_SOURCE_DIR}/textures DESTINATION ${CMAKE_BINARY_DIR})
