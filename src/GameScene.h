@@ -47,10 +47,11 @@ public:
     void calculateNeighborMines();
     int countNeighborMines(int row, int col);
     static void revealEmptyArea(int row, int col);
+    static void checkWinCondition();
 
 protected:
     GLuint skyboxVBO, skyboxVAO, skyboxProg, skyboxCubemap;
-    GLuint VBO,VAO, prog, unrevealedTexture[6], numberedTexture[9][6], mineTexture[6];
+    GLuint VBO,VAO, prog, unrevealedTexture[6], numberedTexture[9][6], mineTexture[6], flaggedTexture[6];
     glm::vec3 lightPos;
     static Cell grid[ROW][COL];
     static bool isGameOver;

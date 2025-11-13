@@ -1,6 +1,7 @@
 #include <shaders.h>
 #include <ctime>
 #include <queue>
+#include <iostream>
 #include "GameScene.h"
 #include "gl_util.h"
 #include "Game.h"
@@ -157,7 +158,6 @@ void GameScene::mouse_button_callback(GLFWwindow* window, int button, int action
         }
 
         if (closestRow != -1 && !grid[closestRow][closestCol].isRevealed && !isGameOver) {
-            printf("Clicked cube at row: %d, col: %d\n", closestRow, closestCol);
             if (button == GLFW_MOUSE_BUTTON_LEFT && !grid[closestRow][closestCol].isFlagged) {
                 // Left click - reveal cell
                 grid[closestRow][closestCol].isRevealed = true;
@@ -171,6 +171,7 @@ void GameScene::mouse_button_callback(GLFWwindow* window, int button, int action
                                 grid[r][c].isRevealed = true;
                         }
                     }
+                    printf("\n\nGame over!\n");
                     // Game over logic here
                 } else {
                     printf("Revealed [%d, %d] - Mines nearby: %d\n",
@@ -186,6 +187,7 @@ void GameScene::mouse_button_callback(GLFWwindow* window, int button, int action
                 printf("Flagged [%d, %d]: %s\n", closestRow, closestCol,
                        grid[closestRow][closestCol].isFlagged ? "true" : "false");
             }
+            checkWinCondition();
         }
     }
 }
@@ -341,6 +343,14 @@ void GameScene::onEnter(Game* game) {
     GLuint mineTopTexture = loadTexture("textures/TNT_top.png");
     GLuint mineSideTexture = loadTexture("textures/TNT_side.png");
     GLuint mineBottomTexture = loadTexture("textures/TNT_bottom.png");
+    GLuint flagTexture = loadTexture("textures/Block_of_iron.png");
+
+    flaggedTexture[0] = flagTexture;
+    flaggedTexture[1] = flagTexture;
+    flaggedTexture[2] = flagTexture;
+    flaggedTexture[3] = flagTexture;
+    flaggedTexture[4] = flagTexture;
+    flaggedTexture[5] = flagTexture;
 
     mineTexture[0] = mineSideTexture;
     mineTexture[1] = mineSideTexture;
@@ -494,6 +504,21 @@ void GameScene::onUpdate(Game* game, double deltaTime) {
     }
     n3KeyWasPressed = n3KeyIsPressed;
 
+    if (glfwGetKey(game->window, GLFW_KEY_KP_7) == GLFW_PRESS) {
+        camera.rotation = glm::quat(glm::vec3(glm::radians(-90.0f), glm::radians(0.0f), 0.0f));
+        camera.position.y = 10;
+    }
+
+    if (glfwGetKey(game->window, GLFW_KEY_KP_8) == GLFW_PRESS) {
+        camera.rotation = glm::quat(glm::vec3(glm::radians(-45.0f), glm::radians(0.0f), 0.0f));
+        camera.position.y = 5;
+    }
+
+    if (glfwGetKey(game->window, GLFW_KEY_KP_9) == GLFW_PRESS) {
+        camera.rotation = glm::quat(glm::vec3(glm::radians(0.0f), glm::radians(0.0f), 0.0f));
+        camera.position.y = 2;
+    }
+
     if (glfwGetKey(game->window, GLFW_KEY_W) == GLFW_PRESS) {
         camera.position.z -= 2 * deltaTime;
     }
@@ -506,10 +531,10 @@ void GameScene::onUpdate(Game* game, double deltaTime) {
     if (glfwGetKey(game->window, GLFW_KEY_D) == GLFW_PRESS) {
         camera.position.x += 2 * deltaTime;
     }
-    if (camera.position.x < -2.5) camera.position.x = -2.5;
-    if (camera.position.x > 2.5) camera.position.x = 2.5;
-    if (camera.position.z < -2.5) camera.position.z = -2.5;
-    if (camera.position.z > 2.5) camera.position.z = 2.5;
+    if (camera.position.x < -9) camera.position.x = -9;
+    if (camera.position.x > 9) camera.position.x = 9;
+    if (camera.position.z < -9) camera.position.z = -9;
+    if (camera.position.z > 9) camera.position.z = 9;
 }
 
 void GameScene::onRender() {
@@ -532,6 +557,11 @@ void GameScene::onRender() {
 
     for (int row = 0; row < ROW; ++row) {
         for (int col = 0; col < COL; ++col) {
+            glUniform1f(glGetUniformLocation(prog, "lp.ambient"), 0.2f);
+            glUniform1f(glGetUniformLocation(prog, "lp.diffuse"), 0.8f);
+            glUniform1f(glGetUniformLocation(prog, "lp.specular"), 0.3f);
+            glUniform1f(glGetUniformLocation(prog, "lp.shininess"), 32.0f);
+            glUniform1f(glGetUniformLocation(prog, "lp.reflection"), 0.1f);
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3((col-(COL-1)*0.5f)*1.3f,  0.0f, (row-(ROW-1)*0.5f)*1.3f));
             unsigned int mLoc = glGetUniformLocation(prog, "uModel");
@@ -539,17 +569,22 @@ void GameScene::onRender() {
             glBindVertexArray(VAO);
             for (int i = 0; i < 6; ++i) {
                 glActiveTexture(GL_TEXTURE0);
-                if (!grid[row][col].isRevealed) {
+                if (grid[row][col].isFlagged) {
+                    glUniform1f(glGetUniformLocation(prog, "lp.reflection"), 0.8f);
+                    glBindTexture(GL_TEXTURE_2D, flaggedTexture[i]);
+                } else if (!grid[row][col].isRevealed) {
                     glBindTexture(GL_TEXTURE_2D, unrevealedTexture[i]);
                 } else if (!grid[row][col].isMine) {
                     glBindTexture(GL_TEXTURE_2D, numberedTexture[grid[row][col].neighborMines][i]);
                 } else if (grid[row][col].isMine && grid[row][col].isRevealed) {
                     glBindTexture(GL_TEXTURE_2D, mineTexture[i]);
-
                 } else {
                     glBindTexture(GL_TEXTURE_2D, unrevealedTexture[5]);
                 }
+                glActiveTexture(GL_TEXTURE1);
+                glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxCubemap);
                 glUniform1i(glGetUniformLocation(prog, "uTexture"), 0);
+                glUniform1i(glGetUniformLocation(prog, "skybox"), 1);
                 glDrawArrays(GL_TRIANGLES, i * 6, 6);
             }
         }
@@ -577,4 +612,19 @@ void GameScene::restartGame() {
     initializeMinesweeper(MINES);
     isGameOver = false;
     printf("Game restarted\n");
+}
+
+void GameScene::checkWinCondition() {
+    for (int row = 0; row < ROW; ++row) {
+        for (int col = 0; col < COL; ++col) {
+            if (!grid[row][col].isMine && !grid[row][col].isRevealed) {
+                return; // Found a non-mine cell that is not revealed
+            }
+            if (grid[row][col].isMine && !grid[row][col].isFlagged) {
+                return; // Found a mine that is not flagged
+            }
+        }
+    }
+    printf("\n\nCongratulations!\n You've cleared the minefield!\n");
+    isGameOver = true;
 }
