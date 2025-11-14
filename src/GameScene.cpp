@@ -569,7 +569,7 @@ void GameScene::onRender() {
             glBindVertexArray(VAO);
             for (int i = 0; i < 6; ++i) {
                 glActiveTexture(GL_TEXTURE0);
-                if (grid[row][col].isFlagged) {
+                if (grid[row][col].isFlagged && !grid[row][col].isRevealed) {
                     glUniform1f(glGetUniformLocation(prog, "lp.reflection"), 0.8f);
                     glBindTexture(GL_TEXTURE_2D, flaggedTexture[i]);
                 } else if (!grid[row][col].isRevealed) {
