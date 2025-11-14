@@ -17,7 +17,10 @@ int main() {
               << "R - Restart game\n"
               << "Numpad 1 - Easy mode\n"
               << "Numpad 2 - Medium mode\n"
-              << "Numpad 3 - Hard mode\n";
+              << "Numpad 3 - Hard mode\n"
+              << "Numpad 7 - Top-down view\n"
+              << "Numpad 8 - Angled view\n"
+              << "Numpad 9 - Side view\n";
     game.update();
     game.onClose();
     return 0;
